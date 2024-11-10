@@ -24,6 +24,7 @@
 			{"rule_set":"geosite-cn","server":"localDns"},
 			{"clash_mode":"direct","server":"localDns"},
 			{"clash_mode":"global","server":"proxyDns"},
+			{"rule_set":"ads","server":"block"}
 			{"rule_set":"geosite-geolocation-!cn","server":"proxyDns"}
 		],
 		"final": "localDns",
@@ -78,7 +79,8 @@
 		"rule_set": [
 			{"tag":"ads","type":"remote","format":"binary","url":"https://ghp.ci/https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/Filters/AWAvenue-Ads-Rule-Singbox.srs","download_detour":"🎯 全球直连"},
 			{"tag":"geoip-cn","type":"remote","format":"binary","url":"https://cdn.jsdelivr.net/gh/Loyalsoldier/geoip@release/srs/cn.srs","download_detour":"🎯 全球直连"},
-			{"tag":"geosite-cn","type":"remote","format":"binary","url":"https://ghp.ci/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/cn.srs","download_detour":"🎯 全球直连"}
+			{"tag":"geosite-cn","type":"remote","format":"binary","url":"https://ghp.ci/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/cn.srs","download_detour":"🎯 全球直连"}，
+			 {"tag":"proxy","type":"remote","format":"binary","url":"https://ghp.ci/https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset-compatible/proxy.srs","download_detour":"🎯 全球直连"}
 		]
 	}
 }
