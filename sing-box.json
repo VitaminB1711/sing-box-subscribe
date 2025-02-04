@@ -1,5 +1,6 @@
 {
 	"log": {
+		"disabled": false,
 		"level": "warn",
 		"timestamp": true
 	},
@@ -11,19 +12,23 @@
 			"external_ui_download_url": "https://ghp.ci/https://github.com/MetaCubeX/Yacd-meta/archive/gh-pages.zip",
 			"external_ui_download_detour": "🎯 全球直连",
 			"default_mode": "rule"
+		},
+		"cache_file": {
+			"enabled": true,
+			"path": "cache.db",
+			"store_fakeip": false
 		}
 	},
 	"dns": {
 		"servers": [
-			{"tag":"proxyDns","address":"tls://8.8.8.8","address_resolver":"localDns","address_strategy":"ipv4_only","client_subnet": "1.0.1.0","detour":"🚀 节点选择"},
-			{"tag":"localDns","address":"223.5.5.5","detour":"🎯 全球直连"},
-			{"tag":"block","address":"rcode://success"}
+			{"tag":"proxyDns","address":"tls://8.8.8.8","address_resolver":"defaultDns","address_strategy":"ipv4_only","detour":"🚀 节点选择"},
+			{"tag":"localDns","address":"223.5.5.5","address_resolver":"defaultDns","address_strategy":"ipv4_only","detour":"🎯 全球直连"},
+			{"tag":"defaultDns","address":"223.5.5.5","address_strategy":"ipv4_only","detour":"🎯 全球直连"}
 		],
 		"rules": [
-			{"outbound":"any","server":"localDns","disable_cache":true},
+			{"outbound":"any","server":"defaultDns","disable_cache":true},
 			{"clash_mode":"direct","server":"localDns"},
 			{"clash_mode":"global","server":"proxyDns"},
-			{"rule_set":"ads","server":"block"},
 			{"rule_set":"geosite-cn","server":"localDns"}
 		],
 		"final": "proxyDns",
@@ -34,19 +39,25 @@
 			"type": "tun",
 			"tag": "tun-in",
 			"interface_name": "sing-box",
-			"inet4_address": "172.19.0.1/30",
+			"address": "172.19.0.1/30",
 			"mtu": 9000,
 			"auto_route": true,
 			"sniff": true,
-			"endpoint_independent_nat": false,
 			"stack": "system",
 			"platform": {
 				"http_proxy": {
 					"enabled": true,
-					"server": "0.0.0.0",
-					"server_port": 7890
+					"server": "127.0.0.1",
+					"server_port": 2080
 				}
 			}
+		},
+		{
+			"type": "mixed",
+			"listen": "127.0.0.1",
+			"listen_port": 2080,
+			"sniff": true,
+			"users": []
 		}
 	],
 	"outbounds": [
@@ -58,29 +69,30 @@
 		{"tag":"🇺🇲 美国节点","type":"selector","outbounds":["{all}"],"filter":[{"action":"include","keywords":["🇺🇸|US|us|美国|美|United States"]}]},
 		{"tag":"🔯 香港自动","type":"urltest","outbounds":["{all}"],"filter":[{"action":"include","keywords":["🇭🇰|HK|hk|香港|港|HongKong"]}],"url":"http://www.gstatic.com/generate_204","interval":"10m","tolerance":50},
 		{"tag":"♻️ 自动选择","type":"urltest","outbounds":["{all}"],"filter":[{"action":"exclude","keywords":["网站|地址|剩余|过期|时间|有效|套餐"]}],"url":"http://www.gstatic.com/generate_204","interval":"10m","tolerance":50},
+		{"tag":"🤖 OpenAI","type":"selector","outbounds":["🔯 香港自动","🇭🇰 香港节点","🇯🇵 日本节点","🇸🇬 新加坡节点","🇺🇲 美国节点","🐸 手动切换","♻️ 自动选择","🎯 全球直连"]},
 		{"tag":"GLOBAL","type":"selector","outbounds":["♻️ 自动选择","🔯 香港自动","🎯 全球直连","🇭🇰 香港节点","🇯🇵 日本节点","🇸🇬 新加坡节点","🇺🇲 美国节点","🐸 手动切换"]},
 		{"tag":"REJECT","type":"block"},
 		{"tag":"🎯 全球直连","type":"direct"},
-		{"tag":"🛑 广告拦截","type":"selector","outbounds":["🎯 全球直连","🚀 节点选择","REJECT"]},
 		{"tag":"dns-out","type":"dns"}
 	],
 	"route": {
 		"auto_detect_interface": true,
 		"final": "GLOBAL",
 		"rules": [
-			{"type":"logical","mode":"or","rules":[{"port":53},{"protocol":"dns"}],"outbound":"dns-out"},
+			{"action":"sniff"},
+			{"protocol":"dns","action":"hijack-dns"},
 			{"clash_mode":"direct","outbound":"🎯 全球直连"},
 			{"clash_mode":"global","outbound":"GLOBAL"},
-			{"domain":["clash.razord.top","yacd.metacubex.one","yacd.haishan.me","d.metacubex.one","alt1-mtalk.google.com","alt2-mtalk.google.com","alt3-mtalk.google.com","alt4-mtalk.google.com","alt5-mtalk.google.com","alt6-mtalk.google.com","alt7-mtalk.google.com","alt8-mtalk.google.com","mtalk.google.com"],"outbound":"🎯 全球直连"},
-			{"rule_set":["ads"],"outbound":"🛑 广告拦截"},
+			{"domain":["long.weixin.qq.com","short.weixin.qq.com","szshort.weixin.qq.com"],"outbound":"🚀 节点选择"},
+			{"domain":["clash.razord.top","yacd.metacubex.one","yacd.haishan.me","d.metacubex.one","alt1-mtalk.google.com","alt2-mtalk.google.com","alt3-mtalk.google.com","alt4-mtalk.google.com","alt5-mtalk.google.com","alt6-mtalk.google.com","alt7-mtalk.google.com","alt8-mtalk.google.com","dns.weixin.qq.com","dns.weixin.qq.com.cn","dnstest.weixin.qq.com","mtalk.google.com"],"outbound":"🎯 全球直连"},
 			{"ip_is_private":true,"outbound":"🎯 全球直连"},
 			{"rule_set":["geoip-cn","geosite-cn"],"outbound":"🎯 全球直连"}
 		],
 		"rule_set": [
-			{"tag":"ads","type":"remote","format":"binary","url":"https://ghp.ci/https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/Filters/AWAvenue-Ads-Rule-Singbox.srs","download_detour":"🎯 全球直连"},
+			{"tag":"ads","type":"remote","format":"binary","url":"https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/Filters/AWAvenue-Ads-Rule-Singbox.srs","download_detour":"🚀 节点选择"},
 			{"tag":"geoip-cn","type":"remote","format":"binary","url":"https://cdn.jsdelivr.net/gh/Loyalsoldier/geoip@release/srs/cn.srs","download_detour":"🎯 全球直连"},
-			{"tag":"geosite-cn","type":"remote","format":"binary","url":"https://ghp.ci/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/cn.srs","download_detour":"🎯 全球直连"},
-			 {"tag":"proxy","type":"remote","format":"binary","url":"https://ghp.ci/https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset-compatible/proxy.srs","download_detour":"🎯 全球直连"}
+			{"tag":"geosite-cn","type":"remote","format":"binary","url":"https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/cn.srs","download_detour":"🚀 节点选择"},
+			{"tag":"proxy","type":"remote","format":"binary","url":"https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset-compatible/proxy.srs","download_detour":"🚀 节点选择"}
 		]
 	}
 }
